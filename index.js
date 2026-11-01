@@ -8,6 +8,7 @@ const port = 8000;
 
 //middleware
 app.use(cros());
+app.use(express.json())
 
 const client = new MongoClient(process.env.MONGO_DB_CLIENT_STRING);
 
@@ -35,6 +36,14 @@ app.get("/events/:EventId", async (req, res) => {
   const result = await eventCollection.findOne({_id: new ObjectId(EventId)})
   res.send(result);
 });
+
+app.post("/events/", async(req, res)=>{
+  const eventInfo = req.body
+  console.log(eventInfo)
+  const result = await eventCollection.insertOne(eventInfo)
+  res.send(result)
+
+})
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
