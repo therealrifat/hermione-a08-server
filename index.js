@@ -39,7 +39,6 @@ app.get("/events/:EventId", async (req, res) => {
 
 app.post("/events/", async(req, res)=>{
   const eventInfo = req.body
-  console.log(eventInfo)
   const result = await eventCollection.insertOne(eventInfo)
   res.send(result)
 
@@ -56,8 +55,18 @@ app.get("/manage/:emailId", async (req, res) => {
 app.delete("/manage/:Id", async(req, res)=>{
   const {Id} = req.params
   const result = await eventCollection.deleteOne({_id: new ObjectId(Id)})
-  console.log(Id)
   res.send(result)
+})
+
+app.patch("/manage/:Id", async(req,res)=>{
+  const {Id}=req.params
+  const data = req.body
+  const result = await eventCollection.updateOne(
+    {_id: new ObjectId(Id)},
+    {$set:data})
+  res.send(result)
+  console.log(result)
+
 })
 
 app.get("/", (req, res) => {
