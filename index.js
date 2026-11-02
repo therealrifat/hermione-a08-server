@@ -25,6 +25,7 @@ export async function connectToMongoDB() {
 const mongoClient = await connectToMongoDB();
 const db = mongoClient.db("BondHub");
 const eventCollection = db.collection("upcomingEvent");
+const joinEvent = db.collection("JoinedEvent");
 
 app.get("/events", async (req, res) => {
   const events = await eventCollection.find().toArray();
@@ -65,7 +66,13 @@ app.patch("/manage/:Id", async(req,res)=>{
     {_id: new ObjectId(Id)},
     {$set:data})
   res.send(result)
-  console.log(result)
+})
+
+app.post("/manage/", async(req, res)=>{
+  const eventInfo = req.body
+  const result = await joinEvent.insertOne(eventInfo)
+  res.send(result)
+  console.log(eventInfo)
 
 })
 
