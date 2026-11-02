@@ -53,6 +53,13 @@ app.get("/manage/:emailId", async (req, res) => {
 
 });
 
+app.delete("/manage/:Id", async(req, res)=>{
+  const {Id} = req.params
+  const result = await eventCollection.deleteOne({_id: new ObjectId(Id)})
+  console.log(Id)
+  res.send(result)
+})
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
