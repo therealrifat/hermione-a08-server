@@ -80,9 +80,17 @@ app.post("/manage/", async(req, res)=>{
     isJoined: true,
     result
   })
-  console.log(joinedCheck)
+
 
 })
+
+
+app.get("/EventJoin/:emailId", async (req, res) => {
+  const { emailId } = req.params;
+  const result = await joinEvent.find({email:emailId}).toArray()
+  res.send(result);
+
+});
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
