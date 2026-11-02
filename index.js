@@ -69,10 +69,18 @@ app.patch("/manage/:Id", async(req,res)=>{
 })
 
 app.post("/manage/", async(req, res)=>{
-  const eventInfo = req.body
-  const result = await joinEvent.insertOne(eventInfo)
-  res.send(result)
-  console.log(eventInfo)
+  const eventJoin = req.body
+  const joinedCheck = await joinEvent.findOne(eventJoin)
+  if(joinedCheck){
+    return res.send({message: "Already Joined", isJoined:true})
+  }
+  const result = await joinEvent.insertOne(eventJoin)
+  res.send({
+    message: "Successfully Joined",
+    isJoined: true,
+    result
+  })
+  console.log(joinedCheck)
 
 })
 
