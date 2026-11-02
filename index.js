@@ -45,6 +45,14 @@ app.post("/events/", async(req, res)=>{
 
 })
 
+
+app.get("/manage/:emailId", async (req, res) => {
+  const { emailId } = req.params;
+  const result = await eventCollection.find({creatorEmail:emailId}).toArray()
+  res.send(result);
+
+});
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
