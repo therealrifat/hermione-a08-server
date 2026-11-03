@@ -100,7 +100,7 @@ app.post("/manage/", async (req, res) => {
 
 app.get("/EventJoin/:emailId", async (req, res) => {
   const { emailId } = req.params;
-  const result = await joinEvent.find({ email: emailId }).toArray();
+  const result = await joinEvent.find({ email: emailId }).sort({ eventDate: 1 }).toArray();
   res.send(result);
 });
 
