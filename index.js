@@ -27,6 +27,7 @@ const db = mongoClient.db("BondHub");
 const eventCollection = db.collection("upcomingEvent");
 const joinEvent = db.collection("JoinedEvent");
 
+
 app.get("/events", async (req, res) => {
   const today = new Date().toISOString().split("T")[0];
   const events = await eventCollection
@@ -34,6 +35,16 @@ app.get("/events", async (req, res) => {
       eventDate: { $gte: today },
     })
     .sort({ eventDate: 1 }).toArray();
+  res.send(events);
+});
+
+app.get("/recent-event", async (req, res) => {
+  const today = new Date().toISOString().split("T")[0];
+  const events = await eventCollection
+    .find({
+      eventDate: { $gte: today },
+    })
+    .sort({ eventDate: 1 }).limit(6).toArray();
   res.send(events);
 });
 
