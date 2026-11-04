@@ -2,6 +2,7 @@ import express from "express";
 import "dotenv/config";
 import cros from "cors";
 import { MongoClient, ObjectId } from "mongodb";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const app = express();
 const port = 8000;
@@ -27,6 +28,31 @@ const db = mongoClient.db("BondHub");
 const eventCollection = db.collection("upcomingEvent");
 const joinEvent = db.collection("JoinedEvent");
 
+const verifyToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).send({ msg: "Unauthorized" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  console.log(token);
+
+  if (!token) {
+    return res.status(401).send({ msg: "Unauthorized" });
+  }
+
+  const JWKS = createRemoteJWKSet(
+    new URL(`${process.env.CLIENT_URL}/api/auth/jwks`),
+  );
+
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+    next();
+  } catch (error) {
+    return res.status(500).send({ msg: "Server Error" });
+  }
+};
 
 app.get("/events", async (req, res) => {
   const today = new Date().toISOString().split("T")[0];
@@ -34,7 +60,8 @@ app.get("/events", async (req, res) => {
     .find({
       eventDate: { $gte: today },
     })
-    .sort({ eventDate: 1 }).toArray();
+    .sort({ eventDate: 1 })
+    .toArray();
   res.send(events);
 });
 
@@ -44,7 +71,9 @@ app.get("/recent-event", async (req, res) => {
     .find({
       eventDate: { $gte: today },
     })
-    .sort({ eventDate: 1 }).limit(6).toArray();
+    .sort({ eventDate: 1 })
+    .limit(6)
+    .toArray();
   res.send(events);
 });
 
@@ -54,13 +83,13 @@ app.get("/events/:EventId", async (req, res) => {
   res.send(result);
 });
 
-app.post("/events/", async (req, res) => {
+app.post("/events/", verifyToken, async (req, res) => {
   const eventInfo = req.body;
   const result = await eventCollection.insertOne(eventInfo);
   res.send(result);
 });
 
-app.get("/manage/:emailId", async (req, res) => {
+app.get("/manage/:emailId", verifyToken, async (req, res) => {
   const { emailId } = req.params;
   const result = await eventCollection
     .find({ creatorEmail: emailId })
@@ -98,9 +127,12 @@ app.post("/manage/", async (req, res) => {
   });
 });
 
-app.get("/EventJoin/:emailId", async (req, res) => {
+app.get("/EventJoin/:emailId", verifyToken,  async (req, res) => {
   const { emailId } = req.params;
-  const result = await joinEvent.find({ email: emailId }).sort({ eventDate: 1 }).toArray();
+  const result = await joinEvent
+    .find({ email: emailId })
+    .sort({ eventDate: 1 })
+    .toArray();
   res.send(result);
 });
 
