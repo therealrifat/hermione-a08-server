@@ -113,7 +113,7 @@ app.patch("/manage/:Id", async (req, res) => {
   res.send(result);
 });
 
-app.post("/manage/", async (req, res) => {
+app.post("/manage/", verifyToken, async (req, res) => {
   const eventJoin = req.body;
   const joinedCheck = await joinEvent.findOne(eventJoin);
   if (joinedCheck) {
