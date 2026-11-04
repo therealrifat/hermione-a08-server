@@ -36,7 +36,7 @@ const verifyToken = async (req, res, next) => {
   }
 
   const token = authHeader.split(" ")[1];
-  console.log(token);
+  // console.log(token);
 
   if (!token) {
     return res.status(401).send({ msg: "Unauthorized" });
@@ -97,13 +97,13 @@ app.get("/manage/:emailId", verifyToken, async (req, res) => {
   res.send(result);
 });
 
-app.delete("/manage/:Id", async (req, res) => {
+app.delete("/manage/:Id", verifyToken, async (req, res) => {
   const { Id } = req.params;
   const result = await eventCollection.deleteOne({ _id: new ObjectId(Id) });
   res.send(result);
 });
 
-app.patch("/manage/:Id", async (req, res) => {
+app.patch("/manage/:Id", verifyToken, async (req, res) => {
   const { Id } = req.params;
   const data = req.body;
   const result = await eventCollection.updateOne(
